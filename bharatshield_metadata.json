@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "evidence": {
+    "case_id": "BS-20250415-1A2B3C4D",
+    "media_filename": "suspect_video_election_rally_2025.mp4",
+    "media_type": "Video",
+    "media_sha256": "b2ef6dba8622ae79b5ab4d3f57ff16ed4340b9c0f3f293c9248340b756e2f6bc",
+    "capture_timestamp": "2025-04-15T14:32:07+05:30",
+    "source_platform": "WhatsApp (forwarded message)",
+    "source_url": "https://web.whatsapp.com/share/xK9mP2 [archived]",
+    "originating_state": "Karnataka",
+    "election_context": "Karnataka State Legislative Assembly By-Election 2025",
+    "cnn_score": 0.924,
+    "temporal_score": 0.887,
+    "audio_score": 0.951,
+    "metadata_score": 0.76,
+    "fusion_score": 0.916,
+    "verdict": "LIKELY SYNTHETIC",
+    "verdict_color_tag": "DANGER",
+    "model_version": "BharatShield-DetectCore v2.1.3",
+    "inference_duration": "4.7 seconds",
+    "salient_regions": [
+      "Face boundary blending artefacts at 00:03–00:07 (frames 72–168)",
+      "Inconsistent ear-to-jaw texture gradient in frames 210–290",
+      "Audio-lip sync deviation: +180ms offset detected at 00:11",
+      "Compression signature anomaly: H.264 GOP structure inconsistent with stated recording device"
+    ],
+    "custody_log": [
+      {
+        "timestamp": "2025-04-15T14:32:07+05:30",
+        "actor": "Field Officer Ramesh Kumar (Badge #KA-7721)",
+        "action": "Media captured and SHA-256 hash computed via BharatShield Mobile App v3.0.1",
+        "system_hash": "b2ef6dba8622ae79b5ab4d3f57ff16ed..."
+      },
+      {
+        "timestamp": "2025-04-15T14:33:01+05:30",
+        "actor": "BharatShield AI Engine (Auto)",
+        "action": "Multi-modal inference completed. Result sealed with system signature.",
+        "system_hash": "b3c1a9b347d2c76206d5f45448e7b8f1..."
+      },
+      {
+        "timestamp": "2025-04-15T15:10:44+05:30",
+        "actor": "Inspector Priya Nair (Cyber Cell, Bengaluru)",
+        "action": "Evidence reviewed. FIR support report generated.",
+        "system_hash": "2df586bd6c3c5309d7e602f0f95f4b68..."
+      },
+      {
+        "timestamp": "2025-04-15T16:05:00+05:30",
+        "actor": "Nodal Officer Anand Sharma (MeitY)",
+        "action": "Takedown notice issued to platform. Regulatory report filed.",
+        "system_hash": "d7aa0263e1c1754b6dd3d4b39fc9fa12..."
+      }
+    ]
+  },
+  "complainant": {
+    "name": "Inspector Priya Nair",
+    "designation": "Inspector, Cyber Crime Cell",
+    "organization": "Bengaluru City Police",
+    "badge_id": "KA-CCU-1194",
+    "contact_email": "cybercell.blr@ksp.gov.in",
+    "contact_phone": "+91-80-2294-3000",
+    "address": "Cyber Crime Police Station, CID Headquarters, Carlton House, Palace Road, Bengaluru – 560 001"
+  },
+  "subject": {
+    "name_depicted": "Shri Arvind Patil (depicted without consent)",
+    "role_depicted": "Member of Legislative Assembly, Constituency 47",
+    "alleged_creator": "Unknown — under investigation",
+    "platform_handle": "@arvind_patil_official (impersonation account)"
+  },
+  "nodal_officer": {
+    "name": "Shri Anand Sharma",
+    "designation": "Director, Cyber Laws Division",
+    "ministry": "Ministry of Electronics and Information Technology (MeitY)",
+    "email": "nodalofficer-cyber@meity.gov.in",
+    "phone": "+91-11-2430-1851",
+    "address": "Electronics Niketan, 6 CGO Complex, New Delhi – 110 003"
+  },
+  "output": {
+    "package_pdf_path": "./BharatShield_Legal_Package.pdf",
+    "individual_output_dir": "./output"
+  }
+}

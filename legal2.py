@@ -16,6 +16,7 @@ Output:
 """
 
 import hashlib
+import json
 import os
 import uuid
 from datetime import datetime, timezone
@@ -98,6 +99,13 @@ class MediaEvidence:
              "system_hash": hashlib.sha256(b"takedown_notice").hexdigest()[:32] + "..."},
         ]
 
+    @staticmethod
+    def from_dict(d: dict) -> "MediaEvidence":
+        obj = MediaEvidence()
+        for k, v in d.items():
+            setattr(obj, k, v)
+        return obj
+
 
 class Complainant:
     """Person or body raising the complaint."""
@@ -110,6 +118,13 @@ class Complainant:
         self.contact_phone   = "+91-80-2294-3000"
         self.address         = "Cyber Crime Police Station, CID Headquarters, Carlton House, Palace Road, Bengaluru – 560 001"
 
+    @staticmethod
+    def from_dict(d: dict) -> "Complainant":
+        obj = Complainant()
+        for k, v in d.items():
+            setattr(obj, k, v)
+        return obj
+
 
 class Subject:
     """Person or entity depicted in / responsible for the deepfake."""
@@ -118,6 +133,13 @@ class Subject:
         self.role_depicted   = "Member of Legislative Assembly, Constituency 47"
         self.alleged_creator = "Unknown — under investigation"
         self.platform_handle = "@arvind_patil_official (impersonation account)"
+
+    @staticmethod
+    def from_dict(d: dict) -> "Subject":
+        obj = Subject()
+        for k, v in d.items():
+            setattr(obj, k, v)
+        return obj
 
 
 class NodalOfficer:
@@ -129,6 +151,13 @@ class NodalOfficer:
         self.email        = "nodalofficer-cyber@meity.gov.in"
         self.phone        = "+91-11-2430-1851"
         self.address      = "Electronics Niketan, 6 CGO Complex, New Delhi – 110 003"
+
+    @staticmethod
+    def from_dict(d: dict) -> "NodalOfficer":
+        obj = NodalOfficer()
+        for k, v in d.items():
+            setattr(obj, k, v)
+        return obj
 
 
 # Backward-compatibility alias for older integrations.
@@ -164,6 +193,47 @@ def _next_available_output_path(output_path):
     base_path = Path(output_path)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return str(base_path.with_name(f"{base_path.stem}_{timestamp}{base_path.suffix or '.pdf'}"))
+
+
+# ─────────────────────────────────────────────
+# JSON METADATA INPUT (single source of truth)
+# ─────────────────────────────────────────────
+
+DEFAULT_METADATA_JSON_PATH = Path(__file__).with_name("bharatshield_metadata.json")
+
+
+def _require_dict(root: dict, key: str) -> dict:
+    val = root.get(key)
+    if not isinstance(val, dict):
+        raise ValueError(f"metadata.{key} must be an object")
+    return val
+
+
+def load_metadata_from_json(path: str | Path = DEFAULT_METADATA_JSON_PATH):
+    """
+    Load all PDF-required metadata via JSON and return populated objects:
+    (MediaEvidence, Complainant, Subject, NodalOfficer, output_config_dict)
+    """
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"Metadata JSON not found: {path}")
+
+    with path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    evidence_d = _require_dict(data, "evidence")
+    complainant_d = _require_dict(data, "complainant")
+    subject_d = _require_dict(data, "subject")
+    nodal_d = _require_dict(data, "nodal_officer")
+    output_d = data.get("output", {}) if isinstance(data.get("output", {}), dict) else {}
+
+    evidence = MediaEvidence.from_dict(evidence_d)
+    complainant = Complainant.from_dict(complainant_d)
+    subject = Subject.from_dict(subject_d)
+    nodal = NodalOfficer.from_dict(nodal_d)
+
+    _validate_inputs(evidence, complainant, subject, nodal)
+    return evidence, complainant, subject, nodal, output_d
 
 
 # ─────────────────────────────────────────────
@@ -1047,8 +1117,25 @@ def generate_all_documents(evidence=None, complainant=None, subject=None, nodal=
 # RUN
 # ─────────────────────────────────────────────
 if __name__ == "__main__":
-    output = generate_all_documents(output_path="./BharatShield_Legal_Package.pdf")
-    print(f"[BharatShield] Done → {output}")
-    separate_outputs = generate_individual_documents(output_dir="./output")
-    for p in separate_outputs:
-        print(f"[BharatShield] Individual PDF → {p}")
+    # Prefer JSON-driven inputs to keep the PDF metadata consistent and auditable.
+    if DEFAULT_METADATA_JSON_PATH.exists():
+        evidence, complainant, subject, nodal, out_cfg = load_metadata_from_json(DEFAULT_METADATA_JSON_PATH)
+        package_path = out_cfg.get("package_pdf_path", "./BharatShield_Legal_Package.pdf")
+        individual_dir = out_cfg.get("individual_output_dir", "./output")
+        output = generate_all_documents(
+            evidence=evidence, complainant=complainant, subject=subject, nodal=nodal,
+            output_path=package_path,
+        )
+        print(f"[BharatShield] Done → {output}")
+        separate_outputs = generate_individual_documents(
+            evidence=evidence, complainant=complainant, subject=subject, nodal=nodal,
+            output_dir=individual_dir,
+        )
+        for p in separate_outputs:
+            print(f"[BharatShield] Individual PDF → {p}")
+    else:
+        output = generate_all_documents(output_path="./BharatShield_Legal_Package.pdf")
+        print(f"[BharatShield] Done → {output}")
+        separate_outputs = generate_individual_documents(output_dir="./output")
+        for p in separate_outputs:
+            print(f"[BharatShield] Individual PDF → {p}")
